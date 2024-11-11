@@ -5,7 +5,7 @@ const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
-//old way
+//1. (Old Way), this was the old and outdated way of getting data from an endPoint, we call it making ajax call
 
 // const getCountryData = function (country) {
 //   const request = new XMLHttpRequest();
@@ -46,6 +46,7 @@ const countriesContainer = document.querySelector('.countries');
 // getCountryData('portugal');
 // getCountryData('germany');
 
+//Our render function
 const renderCountry = function (data, className = '') {
   const html = `
     <article class="country ${className}">
@@ -69,131 +70,16 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
-// const getCountryAndNeighbour = function (country) {
-//   const request = new XMLHttpRequest();
+//2.a getCountry using promise.then
 
-//   //1st AJAX call to get the country
-//   request.open('GET', `https://restcountries.com/v3.1/name/${country}`);
-//   request.send();
-
-//   request.addEventListener('load', function () {
-//     const [data] = JSON.parse(this.responseText);
-
-//     //   const data = JSON.parse(this.responseText)[0];
-
-//     console.log(data);
-
-//     //Rendering country data
-//     renderCountry(data);
-
-//     //Get the neighbour country
-
-//     const neighbour = data.borders[0];
-
-//     console.log(neighbour);
-
-//     if (!neighbour) return;
-
-//     const request2 = new XMLHttpRequest();
-
-//     //2nd AJAX call to get the neighbour
-//     request2.open('GET', `https://restcountries.com/v3.1/alpha/${neighbour}`);
-//     request2.send();
-
-//     request2.addEventListener('load', function () {
-//       const [data2] = JSON.parse(this.responseText);
-//       console.log(data2);
-
-//       renderCountry(data2, 'neighbour');
-//     });
-//   });
-// };
-
-// // getCountryAndNeighbour('germany');
-
-// //too many nested callback fxn => callback hell
-
-// getCountryAndNeighbour('austria');
-
-// const request = new XMLHttpRequest();
-
-// request.open('GET', `https://restcountries.com/v3.1/name/portugal`);
-// request.send();
-
-// request.addEventListener('load', function () {
-//   const [data] = JSON.parse(this.responseText);
-
-//   //   const data = JSON.parse(this.responseText)[0];
-
-//   console.log(data);
-// });
-
-// const request = fetch(`https://restcountries.com/v3.1/name/portugal`);
-
-// console.log(request);
-
-//A promise is an object that is used as a placeholder for the future
-// result of an asynchronous operation
-
-//Promise Lifecycle
-
-// const getCountryData = function (country) {
+// const getCountry = function (country) {
 //   fetch(`https://restcountries.com/v3.1/name/${country}`)
-//     .then(response => response.json())
-//     .then(data => renderCountry(data[0]));
+//     .then(res => res)
+//     .then(data => renderCountry(data[0]))
+//     .catch(error => renderError(error));
 // };
 
-// getCountryData('portugal');
-
-const renderError = function (msg) {
-  countriesContainer.insertAdjacentText('beforeend', msg);
-
-  countriesContainer.style.opacity = 1;
-};
-
-const getCountryAndNeighbour = function (country) {
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(response => response.json())
-    .then(data => {
-      const result = data[0];
-
-      renderCountry(result);
-
-      console.log(result);
-
-      const neighbour = result.borders?.[0];
-
-      console.log(neighbour);
-
-      if (!neighbour) throw new Error('No neighbour for this country');
-
-      return neighbour;
-    })
-    .then(neighbour =>
-      fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`)
-    )
-    .then(response => response.json())
-    .then(data => renderCountry(data[0], 'neighbour'))
-    .catch(error => renderError(error));
-};
-
-// getCountryAndNeighbour('australia');
-
-// const lotteryPromise = new Promise(function (resolve, reject) {
-//   console.log('lottery result is loading...');
-//   setTimeout(function () {
-//     if (Math.random() >= 0.5) {
-//       resolve('You have won the lottery💵');
-//     } else {
-//       reject(new Error('You have lost your money🤭'));
-//     }
-//   }, 2000);
-// });
-
-// lotteryPromise.then(res => console.log(res)).catch(err => console.log(err));
-
-//Async await
-
+//2.b getCountry Using aync wait
 const getCountry = async function (country) {
   try {
     const res = await fetch(`https://restcountries.com/v3.1/name/${country}`);
@@ -210,44 +96,81 @@ const getCountry = async function (country) {
   }
 };
 
-getCountry('portugal');
-// const getCountry = async function (country) {
-//   try {
-//     const res = await fetch(`https://restcountries.com/v3.1/name/${country}`);
-//     if (res.ok) {
-//       return res.json();
+// getCountry('portugal');
+
+//Custom renderError function
+function renderError(msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+
+  countriesContainer.style.opacity = 1;
+}
+
+//getCountryAndNeighbour using promise.then
+
+// const getCountryAndNeighbour = function (country) {
+//   fetch(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(response => response.json())
+//     .then(data => {
+//       const result = data[0];
+
+//       renderCountry(result);
+
+//       console.log(result);
+
+//       const neighbour = result.borders?.[0];
+
+//       console.log(neighbour);
+
+//       if (!neighbour) throw new Error('No neighbour for this country');
+
+//       return neighbour;
+//     })
+//     .then(neighbour =>
+//       fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`)
+//     )
+//     .then(response => response.json())
+//     .then(data => renderCountry(data[0], 'neighbour'))
+//     .catch(error => renderError(error));
+// };
+
+//getCountryAndNeighbour using Async await
+
+const getCountryAndNeighbour = async function (country) {
+  try {
+    const res = await fetch(`https://restcountries.com/v3.1/name/${country}`);
+
+    //  const data = await res.json()[0]
+
+    const [data] = await res.json();
+    renderCountry(data);
+
+    const neighbour = data?.borders?.[0];
+    if (!neighbour) throw new Error('This country has no neighbor');
+
+    const neighbourResponse = await fetch(
+      `https://restcountries.com/v3.1/alpha/${neighbour}`
+    );
+    const [neigbourData] = await neighbourResponse.json();
+
+    renderCountry(neigbourData, 'neighbour');
+  } catch (error) {
+    renderError(error);
+  }
+};
+
+getCountryAndNeighbour('germany');
+
+//How to create your own promise object using setTimeout
+
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('lottery result is loading...');
+//   setTimeout(function () {
+//     if (Math.random() >= 0.5) {
+//       resolve('You have won the lottery💵');
+//     } else {
+//       reject(new Error('You have lost your money🤭'));
 //     }
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
+//   }, 2000);
+// });
 
-// const get3countries = async function (c1, c2, c3) {
-//   // const res1 = await getCountry(c1);
-//   // const res2 = await getCountry(c2);
-//   // const res3 = await getCountry(c3);
-//   // console.log([res1[0], res2[0], res3[0]]);
-
-//   const data = await Promise.allSettled([
-//     getCountry(c1),
-//     getCountry(c2),
-//     getCountry(c3),
-//   ]);
-
-//   console.log(data);
-// };
-
-// get3countries('ghana', 'germany', 'xcx');
-
-// const loggerFxn = async function () {
-//   const cData = await getCountry('portugal');
-
-//   console.log(cData);
-// };
-
-// loggerFxn();
-
-//Promise.all
-//Promise.race
-//Promise.allSettled
-//Promise.any
+// lotteryPromise.then(res => console.log(res)).catch(err => console.log(err));
